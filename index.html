@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数研社 — Data Analytics Studio</title>
+<meta name="description" content="数研社 (DAS) — 独立数据分析工作室。覆盖主流数据分析方法:问卷量表、实证回归、机器学习、可视化出图,代码可复现,报告可交付。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,900&family=Inter+Tight:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4f1ea;
+    --paper-deep: #ebe6d8;
+    --ink: #18170f;
+    --ink-soft: #3a382a;
+    --rule: #1a1a1a;
+    --accent: #c8341f;
+    --accent-deep: #8a1f0e;
+    --muted: #807a66;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', 'Noto Serif SC', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(200,52,31,0.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(24,23,15,0.03) 0, transparent 40%);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.12;
+    mix-blend-mode: multiply;
+    z-index: 9999;
+  }
+
+  .display { font-family: 'Fraunces', 'Noto Serif SC', serif; font-weight: 900; }
+  .serif-cn { font-family: 'Noto Serif SC', serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ============ LANG TOGGLE ============ */
+  .lang-toggle {
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 6px 14px;
+    text-transform: uppercase;
+    transition: background 0.3s;
+  }
+  .lang-toggle:hover { background: var(--accent); }
+
+  [data-lang="en"] .zh { display: none !important; }
+  [data-lang="zh"] .en { display: none !important; }
+
+  /* ============ NAV ============ */
+  nav {
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink);
+    z-index: 100;
+    padding: 14px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  nav .brand {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+  }
+  nav .brand span { color: var(--accent); }
+  nav .brand .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-left: 12px;
+    text-transform: uppercase;
+  }
+  nav .nav-right { display: flex; align-items: center; gap: 24px; }
+  nav .links { display: flex; gap: 28px; }
+  nav .links a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-bottom: 2px;
+  }
+  nav .links a:hover { color: var(--accent); }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 80px 40px 60px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    grid-column: 1 / -1;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: clamp(56px, 9vw, 132px);
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    margin-bottom: 30px;
+  }
+  .hero h1 .accent { color: var(--accent); font-style: italic; }
+  .hero h1 .small { font-size: 0.5em; vertical-align: super; font-weight: 400; }
+  .hero .lede {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+    line-height: 1.55;
+    max-width: 680px;
+    margin-top: 20px;
+    color: var(--ink-soft);
+  }
+  .hero-side {
+    border-left: 1px solid var(--ink);
+    padding-left: 30px;
+    align-self: end;
+  }
+  .hero-side h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    color: var(--muted);
+  }
+  .hero-side .stat {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .hero-side .stat-label {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+
+  /* ============ MARQUEE ============ */
+  .marquee {
+    overflow: hidden;
+    border-bottom: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 0;
+  }
+  .marquee-inner {
+    display: flex;
+    gap: 60px;
+    white-space: nowrap;
+    animation: scroll 40s linear infinite;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  .marquee-inner span { display: inline-flex; align-items: center; gap: 60px; }
+  .marquee-inner span::after { content: '\2726'; color: var(--accent); }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ============ SECTION HEADER ============ */
+  .section-head {
+    padding: 60px 40px 30px;
+    border-bottom: 1px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .section-head .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .section-head .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ============ SERVICES ============ */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--ink);
+  }
+  .service {
+    padding: 50px 40px;
+    border-right: 1px solid var(--ink);
+    transition: background 0.4s;
+  }
+  .service:last-child { border-right: none; }
+  .service:hover { background: var(--paper-deep); }
+  .service .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 30px;
+    letter-spacing: 0.1em;
+  }
+  .service h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .service .h3-cn {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin-bottom: 18px;
+    color: var(--ink-soft);
+  }
+  .service p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+  .service ul { list-style: none; border-top: 1px solid var(--ink); padding-top: 16px; }
+  .service ul li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    padding: 4px 0;
+  }
+  .service ul li::before { content: '\2014 '; color: var(--accent); }
+
+  /* ============ PROCESS ============ */
+  .process {
+    padding: 60px 40px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    border: 1px solid var(--ink);
+  }
+  .step {
+    padding: 32px 24px;
+    border-right: 1px solid var(--ink);
+    position: relative;
+  }
+  .step:last-child { border-right: none; }
+  .step .step-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 48px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+  .step h4 {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .step p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .step .arrow {
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 16px;
+    z-index: 2;
+  }
+
+  /* ============ CASES GRID ============ */
+  .cases {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-bottom: 1px solid var(--ink);
+  }
+  .case {
+    padding: 50px 40px;
+    border-right: 1px solid var(--ink);
+    border-top: 1px solid var(--ink);
+    transition: background 0.3s;
+  }
+  .case:nth-child(2n) { border-right: none; }
+  .case:hover { background: var(--paper-deep); }
+  .case .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+  }
+  .case .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .case .date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .case h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 26px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .case .h4-cn {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+  .case .method { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ============ PRICING ============ */
+  .pricing { padding: 80px 40px; border-bottom: 1px solid var(--ink); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    border: 1px solid var(--ink);
+  }
+  .tier {
+    padding: 40px 32px;
+    border-right: 1px solid var(--ink);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .tier:last-child { border-right: none; }
+  .tier.featured-tier { background: var(--ink); color: var(--paper); }
+  .tier.featured-tier h3, .tier.featured-tier .price { color: var(--paper); }
+  .tier.featured-tier .price .accent-num { color: var(--accent); }
+  .tier.featured-tier ul li { border-color: rgba(244,241,234,0.15); }
+  .tier .badge {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    background: var(--accent);
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .tier h3 { font-family: 'Fraunces', serif; font-weight: 900; font-size: 28px; margin-bottom: 4px; }
+  .tier .h3-cn { font-family: 'Noto Serif SC', serif; font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+  .tier .price { font-family: 'Fraunces', serif; font-weight: 900; font-size: 56px; line-height: 1; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .tier .price .accent-num { color: var(--accent); }
+  .tier .price-suffix { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 30px; }
+  .tier ul { list-style: none; border-top: 1px solid var(--ink); padding-top: 20px; }
+  .tier ul li { font-size: 13px; padding: 10px 0; border-bottom: 1px solid rgba(24,23,15,0.1); display: flex; align-items: flex-start; gap: 8px; }
+  .tier ul li::before { content: '\2726'; color: var(--accent); flex-shrink: 0; }
+
+  /* ============ FAQ ============ */
+  .faq { padding: 60px 40px; border-bottom: 1px solid var(--ink); }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-top: 1px solid var(--ink);
+  }
+  .faq-item {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--ink);
+    border-right: 1px solid var(--ink);
+  }
+  .faq-item:nth-child(2n) { border-right: none; }
+  .faq-item h4 {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .faq-item h4::before { content: 'Q. '; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .faq-item p { font-size: 13px; line-height: 1.6; color: var(--ink-soft); }
+
+  /* ============ MANIFESTO ============ */
+  .manifesto {
+    padding: 100px 40px;
+    border-bottom: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .manifesto::before {
+    content: 'DAS';
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 360px;
+    color: rgba(244,241,234,0.04);
+    line-height: 0.8;
+  }
+  .manifesto-inner { max-width: 900px; margin: 0 auto; position: relative; }
+  .manifesto .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 30px; }
+  .manifesto h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 40px;
+  }
+  .manifesto h2 .em { font-style: normal; font-weight: 900; color: var(--accent); }
+  .manifesto p { font-family: 'Noto Serif SC', serif; font-size: 17px; line-height: 1.75; color: rgba(244,241,234,0.75); max-width: 680px; }
+
+  /* ============ TERMS ============ */
+  .terms {
+    padding: 60px 40px;
+    border-bottom: 1px solid var(--ink);
+    background: var(--paper-deep);
+  }
+  .terms-inner {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .terms .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 20px; }
+  .terms h3 { font-family: 'Fraunces', serif; font-weight: 900; font-size: 32px; margin-bottom: 24px; }
+  .terms p { font-size: 14px; line-height: 1.75; color: var(--ink-soft); margin-bottom: 16px; }
+  .terms ol { padding-left: 20px; margin-bottom: 16px; }
+  .terms ol li { font-size: 14px; line-height: 1.75; color: var(--ink-soft); margin-bottom: 8px; }
+  .terms .highlight { background: rgba(200,52,31,0.08); border-left: 3px solid var(--accent); padding: 16px 20px; margin: 20px 0; font-size: 14px; line-height: 1.7; color: var(--ink); }
+
+  /* ============ CONTACT ============ */
+  .contact { padding: 100px 40px; text-align: center; }
+  .contact .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 24px; }
+  .contact h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 30px;
+  }
+  .contact h2 .accent { color: var(--accent); font-style: italic; }
+  .contact .email {
+    display: inline-block;
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4px;
+    margin: 20px 0;
+    transition: color 0.3s;
+  }
+  .contact .email:hover { color: var(--accent); }
+  .contact .channels {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .contact .channels span strong { color: var(--ink); display: block; font-size: 14px; margin-top: 4px; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    border-top: 1px solid var(--ink);
+    padding: 30px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-side { border-left: none; border-top: 1px solid var(--ink); padding-left: 0; padding-top: 30px; }
+    .services { grid-template-columns: 1fr; }
+    .service { border-right: none; border-bottom: 1px solid var(--ink); }
+    .process-grid { grid-template-columns: 1fr; }
+    .step { border-right: none; border-bottom: 1px solid var(--ink); }
+    .step .arrow { display: none; }
+    .cases { grid-template-columns: 1fr; }
+    .case { border-right: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .tier { border-right: none; border-bottom: 1px solid var(--ink); }
+    .faq-grid { grid-template-columns: 1fr; }
+    .faq-item { border-right: none; }
+    nav { padding: 12px 20px; }
+    nav .links { display: none; }
+    .hero, .process, .pricing, .manifesto, .terms, .contact, .faq { padding-left: 20px; padding-right: 20px; }
+    .section-head { padding-left: 20px; padding-right: 20px; }
+    .service, .case { padding: 32px 20px; }
+    .contact .channels { flex-direction: column; gap: 20px; }
+    .hero-meta { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body data-lang="zh">
+
+<nav>
+  <div class="brand">
+    <span class="zh">数研社</span><span class="en">DAS</span>
+    <span>|</span>
+    <span class="sub zh">Data Analytics Studio</span>
+    <span class="sub en">Data Analytics Studio</span>
+  </div>
+  <div class="nav-right">
+    <div class="links">
+      <a href="#services"><span class="zh">服务</span><span class="en">Services</span></a>
+      <a href="#work"><span class="zh">案例</span><span class="en">Work</span></a>
+      <a href="#pricing"><span class="zh">报价</span><span class="en">Pricing</span></a>
+      <a href="#faq"><span class="zh">常见问题</span><span class="en">FAQ</span></a>
+      <a href="#contact"><span class="zh">联系</span><span class="en">Contact</span></a>
+    </div>
+    <button class="lang-toggle" onclick="toggleLang()">EN / 中</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-meta" style="grid-column: 1/-1;">
+      <span class="zh">独立数据分析工作室 · INDEPENDENT STUDIO</span>
+      <span class="en">INDEPENDENT DATA ANALYTICS STUDIO</span>
+      <span>EST. 2026</span>
+      <span class="zh">200+ 已完成项目</span>
+      <span class="en">200+ COMPLETED PROJECTS</span>
+    </div>
+    <div>
+      <h1>
+        <span class="zh">把数据<br><span class="accent">说成</span>故事<span class="small">.</span></span>
+        <span class="en">Data<br><span class="accent">told</span> right<span class="small">.</span></span>
+      </h1>
+      <p class="lede zh">
+        从问卷量表到面板回归,从描述统计到中介分析,<br>
+        再到时序预测、机器学习、生存分析 —— 覆盖主流数据分析方法。<br>
+        我们替你把数据洗干净、模型跑明白、报告写工整,然后你把它交出去,毫无压力。
+      </p>
+      <p class="lede en">
+        From survey scales to panel regressions, descriptive stats to mediation,<br>
+        time-series forecasting to machine learning &mdash; we cover the full spectrum of data analysis.<br>
+        We clean your data, run your models, and deliver publication-ready reports.
+      </p>
+    </div>
+    <aside class="hero-side">
+      <h4>// Projects</h4>
+      <div class="stat">200<span style="font-size:0.4em;">+</span></div>
+      <div class="stat-label"><span class="zh">累计完成项目</span><span class="en">Projects delivered</span></div>
+      <h4>// Avg. Turnaround</h4>
+      <div class="stat">48<span style="font-size:0.4em;">h</span></div>
+      <div class="stat-label"><span class="zh">标准件平均交付</span><span class="en">Standard delivery</span></div>
+      <h4>// Satisfaction</h4>
+      <div class="stat">99<span style="font-size:0.4em;">%</span></div>
+      <div class="stat-label"><span class="zh">客户好评率</span><span class="en">Client satisfaction</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-inner">
+    <span>Panel Data</span><span>Fixed Effects</span><span>Mediation</span><span>PSM</span><span>DID</span><span>Factor Analysis</span><span>SEM</span><span>Logistic</span><span>Random Forest</span><span>XGBoost</span><span>Time Series</span><span>Survival Analysis</span><span>Bootstrap</span><span>SHAP</span><span>PSQI</span><span>SCL-90</span>
+    <span>Panel Data</span><span>Fixed Effects</span><span>Mediation</span><span>PSM</span><span>DID</span><span>Factor Analysis</span><span>SEM</span><span>Logistic</span><span>Random Forest</span><span>XGBoost</span><span>Time Series</span><span>Survival Analysis</span><span>Bootstrap</span><span>SHAP</span><span>PSQI</span><span>SCL-90</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div class="section-head" id="services">
+  <div>
+    <div class="num">&sect; 001 &mdash; SERVICES</div>
+    <h2><span class="zh">能做什么</span><span class="en">Services</span></h2>
+  </div>
+  <div class="meta"><span class="zh">三个主要方向</span><span class="en">Three pillars</span></div>
+</div>
+
+<section class="services">
+  <div class="service">
+    <div class="num">01 / THESIS</div>
+    <h3>Empirical<br>Analysis</h3>
+    <div class="h3-cn"><span class="zh">论文实证分析</span><span class="en">Thesis-grade empirical work</span></div>
+    <p class="zh">覆盖主流计量经济学与实证分析方法——从面板回归、固定效应到中介调节、DID、PSM、SEM,再到各类稳健性与异质性检验。常见方法都能做,冷门方法也可沟通,从数据清洗到结果呈现,代码可复现,模型可解释。</p>
+    <p class="en">Full coverage of mainstream econometric and empirical methods &mdash; from panel regressions and fixed effects to mediation, moderation, DID, PSM, SEM, and a wide range of robustness and heterogeneity tests. Less common methods welcome for discussion. Reproducible code, interpretable models.</p>
+    <ul>
+      <li><span class="zh">面板回归 / 固定效应</span><span class="en">Panel regression / Fixed effects</span></li>
+      <li><span class="zh">中介与调节效应</span><span class="en">Mediation &amp; moderation</span></li>
+      <li><span class="zh">DID / 工具变量 / PSM</span><span class="en">DID / IV / PSM</span></li>
+      <li><span class="zh">稳健性 · 异质性 · 更多方法</span><span class="en">Robustness / heterogeneity / and more</span></li>
+    </ul>
+  </div>
+  <div class="service">
+    <div class="num">02 / SURVEY</div>
+    <h3>Questionnaire<br>Analysis</h3>
+    <div class="h3-cn"><span class="zh">问卷量表分析</span><span class="en">Scale &amp; survey analytics</span></div>
+    <p class="zh">PSQI、SAS、SDS、SCL-90、SES、EPQ 等主流量表全流程处理,定制问卷也能做。信效度检验、相关分析、回归建模、APA 三线表全套交付。</p>
+    <p class="en">Full-pipeline processing for all major psychometric scales &mdash; PSQI, SAS, SDS, SCL-90, SES, EPQ and more. Custom questionnaires also welcome. Reliability, correlation, regression, publication-ready tables.</p>
+    <ul>
+      <li>Cronbach's &alpha; / KMO / EFA / CFA</li>
+      <li><span class="zh">差异检验 + 相关分析</span><span class="en">Group comparison + correlation</span></li>
+      <li><span class="zh">回归建模 / SEM 结构方程</span><span class="en">Regression / SEM</span></li>
+      <li><span class="zh">APA 格式三线表 · 更多可询问</span><span class="en">APA tables / and more</span></li>
+    </ul>
+  </div>
+  <div class="service">
+    <div class="num">03 / VIZ</div>
+    <h3>Data<br>Visualization</h3>
+    <div class="h3-cn"><span class="zh">数据可视化</span><span class="en">Publication-quality graphics</span></div>
+    <p class="zh">matplotlib、seaborn、ggplot 全套出图。300dpi 出版级精度,中英文字体适配,学位论文/期刊投稿/汇报演示都能用。</p>
+    <p class="en">matplotlib, seaborn, ggplot2 &mdash; 300dpi publication-quality outputs. CJK font support, journal-ready formatting.</p>
+    <ul>
+      <li><span class="zh">300dpi 出版级图表</span><span class="en">300dpi journal-ready figures</span></li>
+      <li><span class="zh">森林图 / 热力图 / 网络图</span><span class="en">Forest / heatmap / network plots</span></li>
+      <li><span class="zh">地理可视化 / 时间序列</span><span class="en">Geo-visualization / time series</span></li>
+      <li><span class="zh">风格定制 · 特殊图型可询问</span><span class="en">Custom styling / special charts on request</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<div class="section-head">
+  <div>
+    <div class="num">&sect; 002 &mdash; PROCESS</div>
+    <h2><span class="zh">接单流程</span><span class="en">How it works</span></h2>
+  </div>
+  <div class="meta"><span class="zh">四步完成</span><span class="en">Four steps</span></div>
+</div>
+
+<section class="process">
+  <div class="process-grid">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4><span class="zh">沟通需求</span><span class="en">Brief</span></h4>
+      <p><span class="zh">加企业微信群,发送数据与需求描述,由专业老师评估可行性并免费报价</span><span class="en">Join our enterprise WeChat group, share your data and requirements. Our analysts assess feasibility and quote for free.</span></p>
+      <span class="arrow">&rarr;</span>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4><span class="zh">确认接单</span><span class="en">Confirm</span></h4>
+      <p><span class="zh">双方确认方案后,一次性支付全款,正式开始项目</span><span class="en">Once scope is confirmed, full payment is made and the project officially begins.</span></p>
+      <span class="arrow">&rarr;</span>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4><span class="zh">分析交付</span><span class="en">Deliver</span></h4>
+      <p><span class="zh">专业老师开始处理,阶段性同步进度,完成后交付初稿</span><span class="en">Our analysts work on the project, sharing progress along the way, and deliver the draft upon completion.</span></p>
+      <span class="arrow">&rarr;</span>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4><span class="zh">验收售后</span><span class="en">Review</span></h4>
+      <p><span class="zh">客户确认满意后交付完整文件,提供 15 天免费售后</span><span class="en">Final files delivered upon client approval. 15 days of complimentary post-delivery support included.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- CASES -->
+<div class="section-head" id="work">
+  <div>
+    <div class="num">&sect; 003 &mdash; RECENT WORK</div>
+    <h2><span class="zh">近期案例</span><span class="en">Recent work</span></h2>
+  </div>
+  <div class="meta"><span class="zh">已脱敏</span><span class="en">Anonymized</span></div>
+</div>
+
+<section class="cases">
+  <div class="case">
+    <div class="head"><div class="num">CASE 01</div><div class="date">2026 / 04</div></div>
+    <h4>Hardware Warehouse<br>Flow Analysis</h4>
+    <div class="h4-cn"><span class="zh">五金件仓库出入库分析</span><span class="en">Warehouse inbound/outbound optimization</span></div>
+    <div class="method">EIQ / ABC Classification / Storage Optimization</div>
+  </div>
+  <div class="case">
+    <div class="head"><div class="num">CASE 02</div><div class="date">2026 / 04</div></div>
+    <h4>Digital Transformation<br>&amp; Firm Resilience</h4>
+    <div class="h4-cn"><span class="zh">企业数字化转型与韧性研究</span><span class="en">Panel study on A-share listed firms</span></div>
+    <div class="method">Two-way FE / Mediation / Heterogeneity</div>
+  </div>
+  <div class="case">
+    <div class="head"><div class="num">CASE 03</div><div class="date">2026 / 03</div></div>
+    <h4>Credit Default<br>Prediction</h4>
+    <div class="h4-cn"><span class="zh">信用卡违约预测论文</span><span class="en">ML-based default prediction thesis</span></div>
+    <div class="method">Logistic / Random Forest / SHAP</div>
+  </div>
+  <div class="case">
+    <div class="head"><div class="num">CASE 04</div><div class="date">2026 / 03</div></div>
+    <h4>Sleep Quality<br>&amp; Quality of Life</h4>
+    <div class="h4-cn"><span class="zh">老年人睡眠质量与生活质量研究</span><span class="en">Elderly sleep &amp; QoL survey study</span></div>
+    <div class="method">PSQI / Mediation / Bootstrap</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<div class="section-head" id="pricing">
+  <div>
+    <div class="num">&sect; 004 &mdash; PRICING</div>
+    <h2><span class="zh">价格区间</span><span class="en">Pricing</span></h2>
+  </div>
+  <div class="meta"><span class="zh">具体加微信详谈</span><span class="en">Contact for exact quote</span></div>
+</div>
+
+<section class="pricing">
+  <div class="pricing-grid">
+    <div class="tier">
+      <h3>Essential</h3>
+      <div class="h3-cn"><span class="zh">基础分析</span><span class="en">Basic analytics</span></div>
+      <div class="price zh"><span class="accent-num">&yen;</span>100<span style="font-size:0.4em; color:var(--muted);"> 起</span></div>
+      <div class="price en"><span class="accent-num">$</span>20<span style="font-size:0.4em; color:var(--muted);"> +</span></div>
+      <div class="price-suffix"><span class="zh">起步价</span><span class="en">Starting from</span></div>
+      <ul>
+        <li><span class="zh">描述性统计 + 频率分布</span><span class="en">Descriptive stats + frequency</span></li>
+        <li><span class="zh">基础相关分析</span><span class="en">Basic correlation analysis</span></li>
+        <li><span class="zh">Word 报告 + 三线表</span><span class="en">Word report + formatted tables</span></li>
+        <li><span class="zh">48 小时交付</span><span class="en">48h delivery</span></li>
+      </ul>
+    </div>
+    <div class="tier featured-tier">
+      <div class="badge"><span class="zh">推荐</span><span class="en">Popular</span></div>
+      <h3>Standard</h3>
+      <div class="h3-cn"><span class="zh">标准实证</span><span class="en">Full empirical</span></div>
+      <div class="price zh"><span class="accent-num">&yen;</span>300<span style="font-size:0.4em; color:var(--muted);"> +</span></div>
+      <div class="price en"><span class="accent-num">$</span>60<span style="font-size:0.4em; color:var(--muted);"> +</span></div>
+      <div class="price-suffix"><span class="zh">根据数据量与工作内容定夺</span><span class="en">Based on data size &amp; scope</span></div>
+      <ul>
+        <li><span class="zh">回归 / 中介 / 调节模型</span><span class="en">Regression / mediation / moderation</span></li>
+        <li><span class="zh">稳健性 + 异质性检验</span><span class="en">Robustness + heterogeneity</span></li>
+        <li><span class="zh">完整 Word 报告 + 图表</span><span class="en">Full report + figures</span></li>
+        <li><span class="zh">代码可复现 + 数据交付</span><span class="en">Reproducible code + data</span></li>
+        <li><span class="zh">15 天免费售后</span><span class="en">15-day post-delivery support</span></li>
+      </ul>
+    </div>
+    <div class="tier">
+      <h3>Bespoke</h3>
+      <div class="h3-cn"><span class="zh">定制方案</span><span class="en">Custom project</span></div>
+      <div class="price zh"><span class="accent-num">&yen;</span>1k<span style="font-size:0.4em; color:var(--muted);"> +</span></div>
+      <div class="price en"><span class="accent-num">$</span>200<span style="font-size:0.4em; color:var(--muted);"> +</span></div>
+      <div class="price-suffix"><span class="zh">完整论文级</span><span class="en">Thesis-level</span></div>
+      <ul>
+        <li><span class="zh">全章实证重写</span><span class="en">Full-chapter empirical rewrite</span></li>
+        <li><span class="zh">方法论咨询</span><span class="en">Methodology consulting</span></li>
+        <li><span class="zh">15 天免费售后</span><span class="en">15-day post-delivery support</span></li>
+        <li><span class="zh">查重降 AI 处理</span><span class="en">Plagiarism &amp; AI-detection optimization</span></li>
+        <li><span class="zh">答辩前支持</span><span class="en">Pre-defense support</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<div class="section-head" id="faq">
+  <div>
+    <div class="num">&sect; 005 &mdash; FAQ</div>
+    <h2><span class="zh">常见问题</span><span class="en">FAQ</span></h2>
+  </div>
+</div>
+
+<section class="faq">
+  <div class="faq-grid">
+    <div class="faq-item">
+      <h4><span class="zh">数据安全吗?</span><span class="en">Is my data safe?</span></h4>
+      <p><span class="zh">所有数据本地处理,不上传任何第三方云端。项目完成后按客户要求删除原始数据。</span><span class="en">All data is processed locally. No third-party cloud uploads. Raw data deleted upon project completion per your request.</span></p>
+    </div>
+    <div class="faq-item">
+      <h4><span class="zh">多久能交付?</span><span class="en">How fast is delivery?</span></h4>
+      <p><span class="zh">简单分析(描述性统计/相关)2-3 天,标准实证 5-7 天,复杂项目视具体情况沟通。</span><span class="en">Basic analysis: 2-3 days. Standard empirical: 5-7 days. Complex projects: discussed case by case.</span></p>
+    </div>
+    <div class="faq-item">
+      <h4><span class="zh">能保证结果显著吗?</span><span class="en">Can you guarantee significant results?</span></h4>
+      <p><span class="zh">不能,这也是我们的底线。数据说什么就是什么,我们不会为了"好看"而编造或操纵结果。</span><span class="en">No, and this is a firm principle. We report what the data shows. We never fabricate or manipulate results to achieve significance.</span></p>
+    </div>
+    <div class="faq-item">
+      <h4><span class="zh">不满意怎么办?</span><span class="en">What if I'm not satisfied?</span></h4>
+      <p><span class="zh">标准服务含 15 天免费售后,期内可沟通调整。我们的目标是交付到你满意为止。</span><span class="en">Standard service includes 15 days of free post-delivery support for adjustments. Our goal is your complete satisfaction.</span></p>
+    </div>
+    <div class="faq-item">
+      <h4><span class="zh">怎么付款?</span><span class="en">How do I pay?</span></h4>
+      <p><span class="zh">一次性付清,完成初稿后先交由平台代管,待客户收货好评后再解付给专业老师。</span><span class="en">Full payment upfront, held in platform escrow. Released to our analysts only after client confirms delivery and leaves positive feedback.</span></p>
+    </div>
+    <div class="faq-item">
+      <h4><span class="zh">你们用什么工具?</span><span class="en">What tools do you use?</span></h4>
+      <p><span class="zh">Python、R、MATLAB、SPSS、Stata 全套数据分析工具,根据项目需求灵活选用。所有代码随报告交付。</span><span class="en">Python, R, MATLAB, SPSS, Stata &mdash; full spectrum of data analysis tools, chosen per project needs. All code delivered with the report.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto">
+  <div class="manifesto-inner">
+    <div class="label"><span class="zh">// 工作原则</span><span class="en">// Principles</span></div>
+    <h2>
+      <span class="zh">不<span class="em">编造</span>数据。<br>不<span class="em">伪造</span>引用。<br>不接<span class="em">没把握</span>的活。</span>
+      <span class="en">No <span class="em">fabricated</span> data.<br>No <span class="em">fake</span> citations.<br>No projects we <span class="em">can't</span> deliver.</span>
+    </h2>
+    <p class="zh">所有数据来自真实统计来源,所有引用一条一条核对真伪,所有模型在结果出来之前都跑过完整诊断。如果一个项目的方法行不通,我们会在开始之前就告诉你,而不是跑完之后再解释为什么不显著。</p>
+    <p class="en">Every dataset from verified sources. Every citation checked one by one. Every model diagnosed before results are reported. If a method won't work for your project, we tell you before we start &mdash; not after we finish.</p>
+  </div>
+</section>
+
+<!-- TERMS -->
+<section class="terms" id="terms">
+  <div class="terms-inner">
+    <div class="label"><span class="zh">// 服务声明</span><span class="en">// Service Statement</span></div>
+    <h3><span class="zh">服务说明</span><span class="en">Service Agreement</span></h3>
+
+    <p class="zh">数研社 (Data Analytics Studio) 提供数据分析方法咨询、代码实现与技术报告撰写支持服务。所有交付内容旨在帮助客户学习数据分析方法、理解统计原理、复现研究流程。</p>
+    <p class="en">Data Analytics Studio (DAS) provides data analysis methodology consulting, code implementation, and technical report writing support. All deliverables are designed to help clients learn analytical methods, understand statistical principles, and reproduce research workflows.</p>
+
+    <div class="highlight">
+      <span class="zh">所有报告均为方法论与技术演示文档,不构成对客户学术成果的背书。客户因不当使用交付物产生的任何后果由其本人承担。</span>
+      <span class="en">All reports are methodology and technical demonstration documents. They do not constitute endorsement of any client's academic output. Clients bear sole responsibility for how deliverables are used.</span>
+    </div>
+
+    <p class="zh">客户应自行确保:</p>
+    <p class="en">Clients are responsible for ensuring:</p>
+    <ol>
+      <li><span class="zh">提供的数据来源合法,且有权进行分析</span><span class="en">Data provided is legally obtained and authorized for analysis</span></li>
+      <li><span class="zh">委托内容不违反所在学校或机构的学术诚信规定</span><span class="en">The commissioned work does not violate their institution's academic integrity policies</span></li>
+      <li><span class="zh">交付物的最终使用方式由客户独立决定</span><span class="en">Final use of deliverables is the client's independent decision</span></li>
+    </ol>
+
+    <p class="zh"><strong>我们拒绝的项目类型:</strong>数据伪造、引用伪造。</p>
+    <p class="en"><strong>Projects we decline:</strong> data fabrication, citation fabrication.</p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="label"><span class="zh">// 接单中</span><span class="en">// Now accepting projects</span></div>
+  <h2>
+    <span class="zh">有<span class="accent">活</span>?<br>聊聊看.</span>
+    <span class="en">Got <span class="accent">data</span>?<br>Let's talk.</span>
+  </h2>
+  <a href="mailto:dasstudio@163.com" class="email">dasstudio@163.com</a>
+  <div class="channels">
+    <span><span class="zh">微信</span><span class="en">WeChat</span><strong>Liang-data</strong></span>
+    <span><span class="zh">响应时间</span><span class="en">Response</span><strong>&lt; 1h</strong></span>
+    <span><span class="zh">工作时间</span><span class="en">Hours</span><strong>8:00 &mdash; 24:00 CST</strong></span>
+  </div>
+</section>
+
+<footer>
+  <div>&copy; 2026 数研社 &middot; Data Analytics Studio</div>
+  <div>SET IN FRAUNCES &amp; INTER TIGHT &middot; NO TRACKING &middot; NO COOKIES</div>
+  <div><a href="#terms" style="color:var(--muted);text-decoration:none;"><span class="zh">服务条款</span><span class="en">Terms</span></a></div>
+</footer>
+
+<script>
+function toggleLang() {
+  const body = document.body;
+  const current = body.getAttribute('data-lang');
+  body.setAttribute('data-lang', current === 'zh' ? 'en' : 'zh');
+}
+</script>
+
+</body>
+</html>
